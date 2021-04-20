@@ -22,7 +22,7 @@ def parseADTUsingCASC(adtfilenamefromlistfile, wowfolderpath, outputfolder=None)
         m2array = AdtToObjParser.parseAllM2(fixadtfilename, None, None, True, obj0file)
         if len(m2array) != 0:
             for item in m2array:
-                print item
+                print (item)
                 if item[0] not in temporarym2dictionary:
                     openm2file = CASCParser.parseWoWFile(item[0], wowfolderpath)
                     temporarym2dictionary[item[0]] = openm2file
@@ -38,7 +38,7 @@ def parseADTUsingCASC(adtfilenamefromlistfile, wowfolderpath, outputfolder=None)
                     wmolistfilestring = item[0].split('.')
                     wmolistfilestring[0] = wmolistfilestring[0] + '_' + fixedx
                     fixedwmostring = '.'.join(wmolistfilestring)
-                    print fixedwmostring
+                    print (fixedwmostring)
                     openwmo = CASCParser.parseWoWFile(fixedwmostring, wowfolderpath)
                     if openwmo == None:
                         'This WMO doest exist in local files, moving to next WMO'
@@ -58,7 +58,7 @@ def parseAllAdtFromMapListfile(mainwowfolder, outputfolder=None, recreatemaplist
         getlistofilesfromoutputfolder[indexx] = x.lower()
     #print getfilesfromcurrentdirectory
     if (recreatemaplistfile == True) or ('maplistfile.txt' not in getfilesfromcurrentdirectory):
-        print 'Maplistfile.txt was not found in current directory or option to recreate it was choosen. It may take few minutes... '
+        print ('Maplistfile.txt was not found in current directory or option to recreate it was choosen. It may take few minutes... ')
         CASCParser.getMapNames(mainwowfolder)
     openmaplistfile = open('maplistfile.txt', 'r').read()
     splitentries = openmaplistfile.split('\n')
@@ -67,10 +67,10 @@ def parseAllAdtFromMapListfile(mainwowfolder, outputfolder=None, recreatemaplist
             realfilename = fileentry.split('\\')[-1]
             objname = realfilename.split('.')[0] + '.obj'
             if (objname.lower() in getlistofilesfromoutputfolder) and (overwritefiles == False):
-                print 'File already exists in output folder and overwrite files function is off. Continuing to next file.'
+                print ('File already exists in output folder and overwrite files function is off. Continuing to next file.')
                 continue
             if '.adt' in fileentry and '_obj0' not in fileentry and '_obj1' not in fileentry and '_tex0' not in fileentry and '_lod' not in fileentry:
-                print 'Parsing file %s' %(fileentry)
+                print ('Parsing file %s' %(fileentry))
                 parseADTUsingCASC(fileentry, mainwowfolder, outputfolder)
 
 

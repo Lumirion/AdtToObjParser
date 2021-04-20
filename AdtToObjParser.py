@@ -25,7 +25,7 @@ def parseTerrain(adtfilename, outputfolder=None, useCASCParser=False, cascfilein
 
     mainrowconstant = -4.1666625
     subrowconstant = mainrowconstant / 2
-    mystring = 'KNCM'
+    mystring = b'KNCM'
     if useCASCParser == False:
         f =open(adtfilename, 'rb')
         data = f.read()
@@ -36,7 +36,7 @@ def parseTerrain(adtfilename, outputfolder=None, useCASCParser=False, cascfilein
         for m in foundMCNK:
             kl = m.span()
             MCNKindexes.append(kl[0])
-    print 'Parsing Terrain'
+    print('Parsing Terrain')
     for i in range(0, len(MCNKindexes)):
         startindex = MCNKindexes[i]
         chunkXIndex = startindex + 0x70
@@ -116,7 +116,9 @@ def parseTerrain(adtfilename, outputfolder=None, useCASCParser=False, cascfilein
             # print hex(highresholeunpack)
             # highresholetest = highreshole[::-1]
             for rowindex, x in enumerate(highreshole):
-                bitrow = str(bin((struct.unpack('B', x)[0]))[2:])
+                # in Python 3 iterating over bytes like objects returns the unpacked form
+                # bitrow = str(bin((struct.unpack('B', x)[0]))[2:])
+                bitrow = str(bin(x)[2:])
                 newbitrow = bitrow[::-1]
                 while len(newbitrow) != 8:
                     newbitrow += '0'
@@ -131,7 +133,7 @@ def parseTerrain(adtfilename, outputfolder=None, useCASCParser=False, cascfilein
                         # print vertexesarray[centralvertex]
                         holearray.append(centralvertex)
                     else:
-                        print 'highreshole value error'
+                        print('highreshole value error')
 
     testfile = open(outputfilename, 'w')
     for item in vertexesarray:
@@ -158,7 +160,7 @@ def parseTerrain(adtfilename, outputfolder=None, useCASCParser=False, cascfilein
                     testfile.write(trianglethree + '\n')
                     testfile.write(trianglefour + '\n')
                 else:
-                    print 'highreshole found in vertex %i, triangle not written to file' %(stardconnectingindex + 1)
+                    print('highreshole found in vertex %i, triangle not written to file' %(stardconnectingindex + 1))
 
 def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinput=None):
     global MCNKindexes
@@ -178,8 +180,8 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
     mainrowconstant = -4.1666625
     subrowconstant = mainrowconstant / 2
     MCNKindexes = []
-    mystring = 'KNCM'
-    mystringone = 'O2HM'
+    mystring = b'KNCM'
+    mystringone = b'O2HM'
     if useCASCParser == False:
         f = open(adtfilename, 'rb')
         data = f.read()
@@ -197,7 +199,7 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
             kl = m.span()
             firstwaterchunklocation = kl[0] + 0x8
             break
-    print 'Parsing Water'
+    print('Parsing Water')
     if firstwaterchunklocation != 0:
         #MH2Ostart = data[firstwaterchunklocation: firstwaterchunklocation + 4]
         waterchunklocation = firstwaterchunklocation
@@ -231,6 +233,8 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
                 watervertexarrayoffset = containswater * 145
 
                 layercountstruct = firstwaterchunklocation + watercheckarray[k]
+                print ('the size of k is', k, 'and the size of watercheckarray is', len(watercheckarray)) # for debug
+                print ('the size of this file is ', len(data), 'and we are trying to acess it at ', layercountstruct) # for debug
                 watertype = data[layercountstruct: layercountstruct + 2]
                 unpackwatertype = struct.unpack('h', watertype)[0]
                 waterbitmapoffset = data[layercountstruct + 0x10: layercountstruct + 0x10 + 4]
@@ -257,7 +261,7 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
                         unpackedheightoffset = struct.unpack('f', heightoffsetvalue)[0]
                         #wanted to replace 0 value in heigharrays with minheightlevel but it works fine with 0 there
                         if unpackedheightoffset == 234234234:
-                            print 'here'
+                            print('here')
                             vertexstring = vertexesarray[currentvertexindex + ss]
                             splited = vertexstring.split(' ')
                             splited[2] = str(round(unpackminheightleveloffset, 5))
@@ -292,7 +296,8 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
                     bitmapfieldstart = data[firstwaterchunklocation + unpackbitmapoffset: firstwaterchunklocation + unpackbitmapoffset + 8]
                     #print 'Chunk row: %i column: %i' %(chunkrow, chunkcolumn)
                     for rowindex, x in enumerate(bitmapfieldstart):
-                        bitrow = str(bin((struct.unpack('B', x)[0]))[2:])
+                        #bitrow = str(bin((struct.unpack('B', x)[0]))[2:])
+                        bitrow = str(bin(x)[2:])
                         newbitrow = bitrow[::-1]
                         while len(newbitrow) != 8:
                             newbitrow += '0'
@@ -320,7 +325,7 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
                                 waterfacesarray.append(trianglethree)
                                 waterfacesarray.append(trianglefour)
                             else:
-                                print 'wrong bitmap value'
+                                print('wrong bitmap value')
                         #print newbitrow
 
                 else:
@@ -343,14 +348,14 @@ def parseWater(adtfilename, outputfolder=None, useCASCParser=False, cascfileinpu
                             waterfacesarray.append(triangletwo)
                             waterfacesarray.append(trianglethree)
                             waterfacesarray.append(trianglefour)
-                    #print k + 1
+                    #print(k + 1)
                     #for watty in range(0, 8):
                         #waterows[watty] += '11111111'
                 containswater += 1
-                #print containswater
+                #print(containswater)
             else:
                 pass
-                #print 'Chunk row: %i column: %i has no water!' % (chunkrow, chunkcolumn)
+                #print('Chunk row: %i column: %i has no water!' % (chunkrow, chunkcolumn))
 
         #watertest = open('watertest.obj', 'w')
 
@@ -398,7 +403,7 @@ def parseHoles(adtfilename, outputfolder=None):
     holearray = []
     f = open(adtfilename, 'rb')
     data = f.read()
-    print len(MCNKindexes)
+    print(len(MCNKindexes))
     for index, x in enumerate(MCNKindexes):
         startindex = x
         highresholechecker = startindex + 0x1C
@@ -413,7 +418,9 @@ def parseHoles(adtfilename, outputfolder=None):
             #print hex(highresholeunpack)
             #highresholetest = highreshole[::-1]
             for rowindex, x in enumerate(highreshole):
-                bitrow = str(bin((struct.unpack('B', x)[0]))[2:])
+                # in python 3 enumerated elements are returned in unpacked form
+                #bitrow = str(bin((struct.unpack('B', x)[0]))[2:])
+                bitrow = str(bin(x)[2:])
                 newbitrow = bitrow[::-1]
                 while len(newbitrow) != 8:
                     newbitrow += '0'
@@ -428,13 +435,13 @@ def parseHoles(adtfilename, outputfolder=None):
                         #print vertexesarray[centralvertex]
                         holearray.append(centralvertex)
                     else:
-                        print 'highreshole value error'
+                        print('highreshole value error')
 
 
         lowresholes = startindex + 0x40
         lowreshole = struct.unpack('h', data[lowresholes:lowresholes + 2])[0]
         if lowreshole != 0:
-            print 'lowreshole detected!'
+            print('lowreshole detected!')
             #print index
             #print hex(x)
             #print hex(lowreshole)
@@ -444,12 +451,12 @@ def parseHoles(adtfilename, outputfolder=None):
     mainfileread = writeholestomainfile.readlines()
     #print holearray
     fileholearray = []
-    print fileholearray
-    print holearray
-    print len(mainfileread)
-    print len(holearray)
+    print(fileholearray)
+    print(holearray)
+    print(len(mainfileread))
+    print(len(holearray))
     for holeindex, hole in enumerate(holearray):
-        print 'checking hole: %i with index %i. Total holes: %i' %(hole, holeindex, len(holearray))
+        print('checking hole: %i with index %i. Total holes: %i' %(hole, holeindex, len(holearray)))
         for indexios, line in enumerate(mainfileread):
             if (' ' + str(hole) + ' ') in line and 'f' in line:
                 fileholearray.append(indexios)
@@ -491,14 +498,14 @@ def parseM2(adtfilename, folderpath, filepath, posy, posz, posx, rotationy, rota
             readm2 = openm2.read()
         else:
             readm2 = openm2
-        foundm2 = re.finditer('MD21', readm2)
+        foundm2 = re.finditer(b'MD21', readm2)
         if foundm2:
             for m in foundm2:
                 kl = m.span()
                 m2index = kl[0]
                 break
         else:
-            print 'MD21 not found!'
+            print ('MD21 not found!')
 
         m2chunkstartoffset = m2index + 0x8
 
@@ -699,7 +706,7 @@ def parseAllM2(filename, mapfolderlocation, outputfolderpath=None, useCASCParser
         openobjfile.close()
     else:
         readobjfile = cascfileinput
-    foundMMDX = re.finditer('XDMM', readobjfile)
+    foundMMDX = re.finditer(b'XDMM', readobjfile)
     if foundMMDX:
         for m in foundMMDX:
             kl = m.span()
@@ -707,7 +714,7 @@ def parseAllM2(filename, mapfolderlocation, outputfolderpath=None, useCASCParser
             firstmddxstring = MDDXstart + 0x8
             break
 
-    foundMMID = re.finditer('DIMM', readobjfile)
+    foundMMID = re.finditer(b'DIMM', readobjfile)
     if foundMMID:
         for m in foundMMID:
             kl = m.span()
@@ -716,8 +723,8 @@ def parseAllM2(filename, mapfolderlocation, outputfolderpath=None, useCASCParser
             break
             #print hex(MMIDstart)
 
-    foundMDDF = re.finditer('FDDM', readobjfile)
-    #foundMDDF = re.finditer('DDLM', readobjfile)
+    foundMDDF = re.finditer(b'FDDM', readobjfile)
+    #foundMDDF = re.finditer(b'DDLM', readobjfile)
     if foundMDDF:
         for m in foundMDDF:
             kl = m.span()
@@ -728,16 +735,16 @@ def parseAllM2(filename, mapfolderlocation, outputfolderpath=None, useCASCParser
     itemIDaddress = readobjfile[firstmddf:firstmddf + 4]
     itemID = struct.unpack('i', itemIDaddress)[0]
     nextitemoffset = 0
-    print 'Parsing All M2'
-    while itemIDaddress != 'FDOM':
+    print ('Parsing All M2')
+    while itemIDaddress != b'FDOM':
         temparray = []
         modelname = ''
         mmidaddressoffset = itemID * 4
         mmidaddress = readobjfile[firstmmid + mmidaddressoffset:firstmmid + mmidaddressoffset + 4]
         stringoffset = struct.unpack('i', mmidaddress)[0]
-        #print stringoffset
+        print ('string offset is ', stringoffset)
         modelnamestring = readobjfile[firstmddxstring + stringoffset:firstmddxstring + stringoffset + 1]
-        while modelnamestring != '\x00':
+        while modelnamestring != b'\x00':
             modelname += modelnamestring
             stringoffset += 1
             modelnamestring = readobjfile[firstmddxstring + stringoffset:firstmddxstring + stringoffset + 1]
@@ -800,7 +807,7 @@ def parseAllM2(filename, mapfolderlocation, outputfolderpath=None, useCASCParser
 
     if useCASCParser == False:
         for item in m2array:
-            print item
+            print (item)
             if outputfolderpath == None:
                 parseM2(filename, mapfolderlocation, item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7])
             else:
@@ -828,7 +835,7 @@ def parseWMO(adtfilename, folderpath, filepath, posy, posz, posx, rotationy, rot
         openwmo.close()
     else:
         readwmo = cascfileinput
-    foundMOVI = re.finditer('IVOM', readwmo)
+    foundMOVI = re.finditer(b'IVOM', readwmo)
     moviindex = 0
     movtindex = 0
     if foundMOVI:
@@ -837,44 +844,44 @@ def parseWMO(adtfilename, folderpath, filepath, posy, posz, posx, rotationy, rot
             moviindex = kl[0]
             break
     else:
-        print 'MOVI not found'
+        print ('MOVI not found')
 
-    foundMOVT = re.finditer('TVOM', readwmo)
+    foundMOVT = re.finditer(b'TVOM', readwmo)
     if foundMOVT:
         for m in foundMOVT:
             kl = m.span()
             movtindex = kl[0]
             break
     else:
-        print 'MOVT not found'
+        print ('MOVT not found')
     mopyindex = 0
-    foundMOPY = re.finditer('YPOM', readwmo)
+    foundMOPY = re.finditer(b'YPOM', readwmo)
     if foundMOPY:
         for m in foundMOPY:
             kl = m.span()
             mopyindex = kl[0]
             break
     else:
-        print 'MOPY not found'
+        print ('MOPY not found')
     mogpindex = 0
-    foundMOGP = re.finditer('PGOM', readwmo)
+    foundMOGP = re.finditer(b'PGOM', readwmo)
     if foundMOGP:
         for m in foundMOGP:
             kl = m.span()
             mogpindex = kl[0]
             break
     else:
-        print 'MOGP not found'
+        print ('MOGP not found')
 
     foundmovt = 0
-    foundMOVT = re.finditer('VTOM', readwmo)
+    foundMOVT = re.finditer(b'VTOM', readwmo)
     if foundMOVT:
         for m in foundMOVT:
             kl = m.span()
             foundmovt = kl[0]
             break
     else:
-        print 'MOTV not found'
+        print ('MOTV not found')
 
     checkflags = readwmo[mogpindex + 0x10: mogpindex + 0x10 + 0x4]
     checkflagarray = []
@@ -883,9 +890,9 @@ def parseWMO(adtfilename, folderpath, filepath, posy, posz, posx, rotationy, rot
         checkflagarray.append(checkbit)
     #if checkflagarray[0] == 128 and (checkflagarray[3] == 132 or checkflagarray[3] == 68 or checkflagarray[3] == 36 or checkflagarray[3] == 20):
     if checkflagarray[0] == 128:
-        print 'This WMO group has Unreachable Flag, aborting!'
+        print ('This WMO group has Unreachable Flag, aborting!')
     elif foundmovt == 0:
-        print 'MOTV chunk not found, WMO group doesnt exist or its antiportal, aborting!'
+        print ('MOTV chunk not found, WMO group doesnt exist or its antiportal, aborting!')
     else:
         if moviindex != 0 and movtindex != 0:
             movistartaddress = moviindex + 0x4
@@ -1104,7 +1111,7 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
         openobjfile.close()
     else:
         readobjfile = cascfileinput
-    foundMWMO = re.finditer('OMWM', readobjfile)
+    foundMWMO = re.finditer(b'OMWM', readobjfile)
     if foundMWMO:
         for m in foundMWMO:
             kl = m.span()
@@ -1113,7 +1120,7 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
             #print hex(MWMOstart)
             break
 
-    foundMWID = re.finditer('DIWM', readobjfile)
+    foundMWID = re.finditer(b'DIWM', readobjfile)
     if foundMWID:
         for m in foundMWID:
             kl = m.span()
@@ -1122,8 +1129,8 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
             #print hex(MWIDstart)
             break
 
-    foundMODF = re.finditer('FDOM', readobjfile)
-    #foundMDDF = re.finditer('DDLM', readobjfile)
+    foundMODF = re.finditer(b'FDOM', readobjfile)
+    #foundMDDF = re.finditer(b'DDLM', readobjfile)
     if foundMODF:
         for m in foundMODF:
             kl = m.span()
@@ -1134,8 +1141,8 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
     itemIDaddress = readobjfile[firstmodf:firstmodf + 4]
     itemID = struct.unpack('i', itemIDaddress)[0]
     nextitemoffset = 0
-    print 'Parsing All WMO'
-    while itemID != 'KNCM' and itemIDaddress != 'KNCM':
+    print ('Parsing All WMO')
+    while itemID != 'KNCM' and itemIDaddress != b'KNCM':
         temparray = []
         modelname = ''
         mwidaddressoffset = itemID * 4
@@ -1206,7 +1213,7 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
     if useCASCParser == True:
         return wmoarray
     for itemnumber, item in enumerate(wmoarray):
-        print item[0]
+        print (item[0])
         firstwmostringsplit = item[0].split('\\')
         wmofilename = firstwmostringsplit[-1]
         #print wmofilename
@@ -1229,7 +1236,7 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
             #print indexio
             #print (wmofilename.split('.')[0] + '_').lower()
             if counter == 0:
-                print 'Missing file: %s' %(item[0])
+                print ('Missing file: %s' %(item[0]))
                 break
             if indexio == startindex:
                 continue
@@ -1241,8 +1248,8 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
                         ((wmofilename.split('.')[0] + '_0').lower() not in fileee.lower() and (wmofilename.split('.')[0] + '_3').lower() in fileee.lower()) or \
                             ((wmofilename.split('.')[0] + '_0').lower() not in fileee.lower() and (wmofilename.split('.')[0] + '_4').lower() in fileee.lower())):
                         wmochunkfilepath = fixedfolderwmopath + '\\' + fileee
-                        print ("%s, %f, %f, %f, %f, %f, %f") % (
-                        wmochunkfilepath, item[1], item[2], item[3], item[4], item[5], item[6])
+                        print (("%s, %f, %f, %f, %f, %f, %f") % (
+                        wmochunkfilepath, item[1], item[2], item[3], item[4], item[5], item[6]))
                         if outputfolderpath == None:
                             parseWMO(filename, mapfolderlocation, wmochunkfilepath, item[1], item[2], item[3], item[4], item[5], item[6])
                         else:
@@ -1255,7 +1262,7 @@ def parseAllWMO(filename, mapfolderlocation, outputfolderpath=None, highlevelofd
                         ((wmofilename.split('.')[0] + '_0').lower() not in fileee.lower() and (wmofilename.split('.')[0] + '_4').lower() in fileee.lower())) \
                             and '_lod'.lower() not in fileee.lower() and '.blp'.lower() not in fileee.lower():
                         wmochunkfilepath = fixedfolderwmopath + '\\' + fileee
-                        print ("%s, %f, %f, %f, %f, %f, %f") %(wmochunkfilepath, item[1], item[2], item[3], item[4], item[5], item[6])
+                        print (("%s, %f, %f, %f, %f, %f, %f") %(wmochunkfilepath, item[1], item[2], item[3], item[4], item[5], item[6]))
                         if outputfolderpath == None:
                             parseWMO(filename, mapfolderlocation, wmochunkfilepath, item[1], item[2], item[3], item[4], item[5], item[6])
                         else:
@@ -1282,8 +1289,8 @@ def removePortalsInWMO(adtfilename, folderpath, filepath, posy, posz, posx, rota
     openwmo = open(folderpath + filepath, 'rb')
     readwmo = openwmo.read()
     openwmo.close()
-    foundMOVP = re.finditer('VPOM', readwmo)
-    foundMOPT = re.finditer('TPOM', readwmo)
+    foundMOVP = re.finditer(b'VPOM', readwmo)
+    foundMOPT = re.finditer(b'TPOM', readwmo)
     movpindex = 0
     if foundMOVP:
         for m in foundMOVP:
@@ -1427,7 +1434,7 @@ def removePortalsInWMO(adtfilename, folderpath, filepath, posy, posz, posx, rota
         for indexcount, vert in enumerate(readwmolines):
             if 'v ' in vert:
                 vertexcounter += 1
-        print vertexcounter
+        print (vertexcounter)
 
         openwmo = open(outputfilename, 'a')
         openwmo.write('\n')
@@ -1509,7 +1516,7 @@ containlowresholes = []
 def holesChecker(adtfilename):
     global containlowresholes
     MCNKindexesfix = []
-    mystring = 'KNCM'
+    mystring = b'KNCM'
     f =open(adtfilename, 'rb')
     data = f.read()
     foundMCNK = re.finditer(mystring, data)
@@ -1529,7 +1536,7 @@ def holesChecker(adtfilename):
         lowresholes = startindex + 0x40
         lowreshole = struct.unpack('h', data[lowresholes:lowresholes + 2])[0]
         if lowreshole != 0:
-            print 'lowreshole detected!'
+            print ('lowreshole detected!')
             containlowresholes.append(adtfilename)
     return False
 
@@ -1555,13 +1562,13 @@ def fixHoles(mainfolderpath, outputfolderpath, startfolderindex=0, endfolderinde
                         for filetocheck in overwritefilelist:
                             if filetocheck.split('.')[0] in file:
                                 if '.adt' in file and '_obj0' not in file and '_obj1' not in file and '_tex0' not in file and '_lod' not in file:
-                                    print '%s file exists, checking holes!' %(filetocheck.split('.')[0])
+                                    print ('%s file exists, checking holes!' %(filetocheck.split('.')[0]))
                                 fileexists = True
                         if '.adt' in file and '_obj0' not in file and '_obj1' not in file and '_tex0' not in file and '_lod' not in file and fileexists == True:
                             adtfilestringinput = mainmapdirectorypath + mapfolder + '\\' + file
                             fixholesinfile = holesChecker(adtfilestringinput)
                             if fixholesinfile == True and fileexists == True:
-                                print adtfilestringinput
+                                print (adtfilestringinput)
                                 vertexesarray = []
                                 MCNKindexes = []
                                 parseTerrain(adtfilestringinput, outputfolderpath)
@@ -1576,7 +1583,7 @@ def fixHoles(mainfolderpath, outputfolderpath, startfolderindex=0, endfolderinde
 def fixOver100WMO():
     global MCNKindexes
     global vertexesarray
-    print 'Getting WMO with over 100 groups for fixing and obj0 file list...'
+    print ('Getting WMO with over 100 groups for fixing and obj0 file list...')
     mapfolderpath = 'E:\\MapsLegion\\'
     outputfolder = 'E:\\MapsObjParserOutput\\'
     over100wmoarray = []
@@ -1600,11 +1607,11 @@ def fixOver100WMO():
         fixedfilenamesarray.append(flipagain)
     objarraywithbadfiles = []
     for objfile in objfilestocheckarray:
-        print objfile
+        print (objfile)
         openobjfile = open(objfile, 'rb')
         readobjfile = openobjfile.read()
         openobjfile.close()
-        foundMWMO = re.finditer('OMWM', readobjfile)
+        foundMWMO = re.finditer(b'OMWM', readobjfile)
         if foundMWMO:
             for m in foundMWMO:
                 kl = m.span()
@@ -1613,7 +1620,7 @@ def fixOver100WMO():
                 # print hex(MWMOstart)
                 break
 
-        foundMWID = re.finditer('DIWM', readobjfile)
+        foundMWID = re.finditer(b'DIWM', readobjfile)
         if foundMWID:
             for m in foundMWID:
                 kl = m.span()
@@ -1622,8 +1629,8 @@ def fixOver100WMO():
                 # print hex(MWIDstart)
                 break
 
-        foundMODF = re.finditer('FDOM', readobjfile)
-        # foundMDDF = re.finditer('DDLM', readobjfile)
+        foundMODF = re.finditer(b'FDOM', readobjfile)
+        # foundMDDF = re.finditer(b'DDLM', readobjfile)
         if foundMODF:
             for m in foundMODF:
                 kl = m.span()
@@ -1651,7 +1658,7 @@ def fixOver100WMO():
                 modelnamestring = readobjfile[firstmwmostring + stringoffset:firstmwmostring + stringoffset + 1]
             for checkwmo in fixedfilenamesarray:
                 if modelname.lower() == checkwmo.lower():
-                    print 'MODELNAME FOUND!!!'
+                    print ('MODELNAME FOUND!!!')
                     objarraywithbadfiles.append(objfile)
                     break
             nextitemoffset += 0x40
@@ -1665,7 +1672,7 @@ def fixOver100WMO():
         splitflip = flipflip[9:]
         flipagainn = splitflip[::-1]
         flipagainn += '.adt'
-        print flipagainn
+        print (flipagainn)
         parseTerrain(flipagainn, outputfolder)
         parseWater(flipagainn, outputfolder)
         parseAllM2(flipagainn, mapfolderpath, outputfolder)

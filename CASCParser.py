@@ -4,7 +4,7 @@ import re
 import struct
 import jenkins
 import time
-import urllib2
+# In python 3+, "import urllib2" is not needed since urllib2 and urllib were merged together 
 import urllib
 import hashlib
 import requests
@@ -74,27 +74,27 @@ def get_client_pid(process_name):
     for proc in psutil.process_iter():
         if proc.name() == process_name:
             pid = int(proc.pid)
-            print "Found, PID = " + str(pid)
+            print ("Found, PID = " + str(pid))
             wowpids.append(pid)
     if len(wowpids) > 1:
-        print "Multiple processes found, choose one"
+        print ("Multiple processes found, choose one")
         while True:
             for wow in wowpids:
-                print wow
+                print (wow)
                 question = raw_input("Choose this process? Y/N ")
                 if question == 'Y':
                     return wow
                 elif question == 'N':
                     continue
                 else:
-                    print "Incorrect answer, try again"
+                    print ("Incorrect answer, try again")
                     break
     return pid
 
 
 def setProcessHandle(pid, privilages=READ_CONTROL):
     processHandle = OpenProcess(privilages, False, pid)
-    print 'Process Handle is %i' %(processHandle)
+    print ('Process Handle is %i' %(processHandle))
     return processHandle
 
 def getBaseAddress(handle):
@@ -138,7 +138,7 @@ def encodeBLTEFile(datafilenumber,realoffsetvalue ,sizeofdata ,mainwowfolderpath
                 opendata.seek(realoffsetvalue)
                 opendatapart = opendata.read()
     else:
-        cdnfile = urllib2.urlopen('http://us.patch.battle.net:1119/wow/cdns')
+        cdnfile = urllib.request.urlopen('http://us.patch.battle.net:1119/wow/cdns')
         cdnfilecontent = cdnfile.read()
         goodcdnpart = ''
         splitcdnfile = cdnfilecontent.split('\n')
@@ -181,9 +181,9 @@ def encodeBLTEFile(datafilenumber,realoffsetvalue ,sizeofdata ,mainwowfolderpath
                 #print 'plain data detected'
                 pass
             elif readunpackcode == 'F':
-                print 'data in recursivly encoded'
+                print ('data in recursivly encoded')
             elif readunpackcode == 'E':
-                print 'data in encrypted'
+                print ('data in encrypted')
             #print len(thisdatachunk)
             fakefile += thisdatachunk
 
@@ -241,12 +241,12 @@ def encodeBLTEFile(datafilenumber,realoffsetvalue ,sizeofdata ,mainwowfolderpath
                         pass
                         #print 'plain data detected'
                     elif readunpackcode == 'F':
-                        print 'data in recursivly encoded'
+                        print ('data in recursivly encoded')
                     elif readunpackcode == 'E':
-                        print 'data in encrypted'
+                        print ('data in encrypted')
                     fakefile += thisdatachunk
 
-            print 'Length of file is: %i' %(len(fakefile))
+            print ('Length of file is: %i' %(len(fakefile)))
             temporarydatafile = open('tempfile', 'wb')
             temporarydatafile.write(fakefile)
             temporarydatafile.close()
@@ -275,9 +275,9 @@ def parseAllIDX(mainwowfolderpath):
     for filee in filelist:
         if '.idx' in filee:
             idxfilearray.append(filee)
-    print len(idxfilearray)
+    print (len(idxfilearray))
     for idxfile in idxfilearray:
-        print idxfile
+        print (idxfile)
         openidx = open(maindatafolderpath + idxfile, 'rb')
         readidx = openidx.read()
         openidx.close()
@@ -323,7 +323,7 @@ def getEncodingFile(encodingcdnhash, mainwowfolder):
     global hashkeyarray
     for index, key in enumerate(hashkeyarray):
         if key in encodingcdnhash:
-            print 'Encoding File found in IDX'
+            print ('Encoding File found in IDX')
             encodingindexinidx = index
     encodingfile = readCASCData(firstbytearray[encodingindexinidx], beuint32array[encodingindexinidx], sizeofdataarray[encodingindexinidx], mainwowfolder)
     return encodingfile
@@ -343,8 +343,8 @@ def getEncodingFileWRONG(encodedhash, mainwowfolderpath):
         for value in hashbytearray:
             fixedbyte = '\\x' + value
             bytestring += fixedbyte
-        print bytestring
-        print repr(bytestring)
+        print (bytestring)
+        print (repr(bytestring))
         maindatafolderpath = mainwowfolderpath + 'Data\\data\\'
         filelist = os.listdir(maindatafolderpath)
         datafilearray = []
@@ -353,7 +353,7 @@ def getEncodingFileWRONG(encodedhash, mainwowfolderpath):
                 datafilearray.append(filee)
         for datafile in datafilearray:
             completedatapath = maindatafolderpath + datafile
-            print 'Parsing Data File: %s' %(completedatapath)
+            print ('Parsing Data File: %s' %(completedatapath))
             opendatafile = open(completedatapath, 'rb')
             readdata = opendatafile.read()
             opendatafile.close()
@@ -394,7 +394,7 @@ def parseEncodingFile(encodingfile, parseextrarrays=False):
             kl = m.span()
             foundENarray.append(kl[0])
     if len(foundENarray) == 0:
-        print 'Encoding File Header not found.'
+        print ('Main Functions' 'Encoding File Header not found.')
     else:
         encodingFileStart = foundENarray[0]
 
@@ -514,16 +514,16 @@ def getRootFile(roothash, mainwowfolderpath):
 
     for indexx, hashh in enumerate(md5contenthashes):
         if hashh == roothash:
-            print 'Found Root Location in Encoding'
+            print ('Found Root Location in Encoding')
             encodingrootindex = indexx
-            print hashh
+            print (hashh)
 
     if encodingrootindex != None:
         rootidxheader = md5idxheaders[encodingrootindex]
-        print rootidxheader
+        print (rootidxheader)
         for indexio, hashik in enumerate(hashkeyarray):
             if hashik in rootidxheader:
-                print 'Found Root Location in IDX'
+                print ('Found Root Location in IDX')
                 idxrootindex = indexio
 
     if idxrootindex != None:
@@ -547,7 +547,7 @@ def parseRootFile(rootfile, specificlocale=None):
         while len(binarynumber) < 32:
             binarynumber = '0' + binarynumber
         flagstocheck += binarynumber
-        print 'Checking for flags: %s' %(flagstocheck)
+        print ('Checking for flags: %s' %(flagstocheck))
     while globaloffset < len(rootfile):
         if specificlocale == None:
             numberOfRootEntriesAddress = rootfile[globaloffset:globaloffset + 4]
@@ -584,7 +584,7 @@ def parseRootFile(rootfile, specificlocale=None):
         globaloffset += (0xC + (numberOfRootEntries * 4) + (numberOfRootEntries * 0x18))
 
     if numberOfRootEntries <= 0:
-        print 'Incorrect Root File Provided'
+        print ('Incorrect Root File Provided')
     else:
         for globaloffset in localestartoffsetarray:
             localOffset = 0
@@ -616,7 +616,7 @@ def parseRootFile(rootfile, specificlocale=None):
                 localOffset += 0x18
                 rootdictionary[fakeblizzhashfilestring] = fakemd5contentstring
 
-        print 'Root Entries for current locale: %i' %(len(blizzhashfilekeyrootarray))
+        print ('Root Entries for current locale: %i' %(len(blizzhashfilekeyrootarray)))
 
 
 
@@ -649,23 +649,23 @@ def Blizzhash(string, fixstring=True):
 
 
 def initializeNecessaryArrays(encodingCDNHash, rootEncodedHash, mainwowfolder, specificlocale=None):
-    print 'Initializing necessary data/hash arrays'
+    print ('Initializing necessary data/hash arrays')
 
-    print 'Parsing IDX Files'
+    print ('Parsing IDX Files')
     parseAllIDX(mainwowfolder)
-    print 'Gettting Encoding File'
+    print ('Gettting Encoding File')
     encodingfile = getEncodingFile(encodingCDNHash, mainwowfolder)
-    print 'Parsing Encoding'
+    print ('Parsing Encoding')
     parseEncodingFile(encodingfile)
-    print 'Gettting Root File'
+    print ('Gettting Root File')
     rootfile = getRootFile(rootEncodedHash, mainwowfolder)
-    print 'Parsing Root FIle'
+    print ('Parsing Root FIle')
     if specificlocale == None:
         parseRootFile(rootfile)
     else:
         parseRootFile(rootfile, specificlocale)
 
-    print 'Initialization Completed!'
+    print ('Initialization Completed!')
 
 
 def parseWoWFileTest(namefromlistfile, mainwowfolder, fixstring=True):
@@ -674,7 +674,7 @@ def parseWoWFileTest(namefromlistfile, mainwowfolder, fixstring=True):
     global encodingdictionary
 
     if len(blizzhashfilekeyrootarray) == 0:
-        print 'Root blizzhash array is empty, remaking it'
+        print ('Root blizzhash array is empty, remaking it')
         root, encoding = getEncodingAndRootFromLocalFiles(mainwowfolder)
         initializeNecessaryArrays(encoding, root, mainwowfolder, '0x202')
 
@@ -687,21 +687,21 @@ def parseWoWFileTest(namefromlistfile, mainwowfolder, fixstring=True):
     if filehashname in rootdictionary:
         encodinghash = rootdictionary[filehashname]
     else:
-        print 'Blizzhash not found in root'
+        print ('Blizzhash not found in root')
         return None
 
     if encodinghash in encodingdictionary:
         idxhash = encodingdictionary[encodinghash]
-        print 'IDXhash is %s' %(idxhash)
+        print ('IDXhash is %s' %(idxhash))
         shortidxhash = idxhash[:18]
     else:
-        print 'Encoding hash not found in encoding'
+        print ('Encoding hash not found in encoding')
         return None
 
     if shortidxhash in idxdictionary:
         paramsarray = idxdictionary[shortidxhash]
         parsefile = readCASCData(paramsarray[0], paramsarray[1], paramsarray[2],mainwowfolder)
-        print 'File Parsed Successfully!'
+        print ('File Parsed Successfully!')
         return parsefile
 
 
@@ -725,7 +725,7 @@ def parseWoWFile(namefromlistfile, mainwowfolder, fixstring=True, returnparamsar
     global areindiciesparsed
 
     if len(blizzhashfilekeyrootarray) == 0:
-        print 'Root blizzhash array is empty, remaking it'
+        print ('Root blizzhash array is empty, remaking it')
         root, encoding = getEncodingAndRootFromLocalFiles(mainwowfolder)
         initializeNecessaryArrays(encoding, root, mainwowfolder, '0x202')
 
@@ -745,8 +745,8 @@ def parseWoWFile(namefromlistfile, mainwowfolder, fixstring=True, returnparamsar
             rootlocalblizzhashearray.append(index)
 
     if len(rootlocalblizzhashearray) == 0:
-        print 'Blizzhash not found in root blizzhashfilekeyrootarray!'
-        print filehashname
+        print ('Blizzhash not found in root blizzhashfilekeyrootarray!')
+        print (filehashname)
         return None
     else:
         for rootindex in rootlocalblizzhashearray:
@@ -755,7 +755,7 @@ def parseWoWFile(namefromlistfile, mainwowfolder, fixstring=True, returnparamsar
                 if md5hash == contenthash:
                     rootlocalemd5array.append(indexx)
     if len(rootlocalemd5array) == 0:
-        print 'Content hash was not found in md5contenthashesarray'
+        print ('Content hash was not found in md5contenthashesarray')
         return None
     else:
         for encodingindex in rootlocalemd5array:
@@ -763,11 +763,11 @@ def parseWoWFile(namefromlistfile, mainwowfolder, fixstring=True, returnparamsar
             for indexxx, idxhash in enumerate(hashkeyarray):
                 if idxhash.lower() in idxfullhash.lower():
                     idxindex = indexxx
-                    print 'Found, IDXIndex: %i' % (idxindex)
+                    print ('Found, IDXIndex: %i' % (idxindex))
                     break
     if idxindex == None:
-        print 'Header not found in idxhasharray'
-        print 'IDX Fullhash: %s' %(idxfullhash)
+        print ('Header not found in idxhasharray')
+        print ('IDX Fullhash: %s' %(idxfullhash))
         fakearray = []
         currentoffset = 0
         while len(fakearray) < 10:
@@ -778,27 +778,27 @@ def parseWoWFile(namefromlistfile, mainwowfolder, fixstring=True, returnparamsar
         indicienumber = (somenumber & 0xf) ^ (somenumber >> 4)
 
         if areindiciesparsed == False:
-            print 'CDN Config not parsed, parsing...'
+            print ('CDN Config not parsed, parsing...')
             parseCDNConfig(mainwowfolder)
-        print 'Trying to find header in CDN indicies'
+        print ('Trying to find header in CDN indicies')
         for encodingindex in rootlocalemd5array:
             fullhash = md5idxheaders[encodingindex]
             for indexxxx, hashik in enumerate(realindexmd5hashes):
                 if fullhash == hashik:
                     cdnindex = indexxxx
-                    print 'Found matching hash!'
+                    print ('Found matching hash!')
                     break
         if cdnindex == None:
-            print 'Header not found in realindexmd5hashes'
+            print ('Header not found in realindexmd5hashes')
             return None
         else:
             parsefile = encodeBLTEFile(realindexesdatafilesnumbers[cdnindex], realindexesfileoffsets[cdnindex], realindexesfilesizes[cdnindex], mainwowfolder, True)
-            print 'File Parsed Successfully!'
+            print ('File Parsed Successfully!')
             return parsefile
     else:
         if returnparamsarray == False:
             parsefile = readCASCData(firstbytearray[idxindex], beuint32array[idxindex], sizeofdataarray[idxindex], mainwowfolder)
-            print 'File Parsed Successfully!'
+            print ('File Parsed Successfully!')
             return parsefile
         else:
             paramsarray = []
@@ -808,21 +808,21 @@ def parseWoWFile(namefromlistfile, mainwowfolder, fixstring=True, returnparamsar
             return paramsarray
 
 def getEncodingAndRootFromServer(region, customcdnurl=None, customconfigurl=None):
-    print 'Getting Root and Encoding Hashes from server!'
+    print ('Getting Root and Encoding Hashes from server!')
     fixedregion = region.lower()
     if (fixedregion != 'eu') and (fixedregion != 'tw') and (fixedregion != 'us') and (fixedregion != 'kr') and (fixedregion != 'cn'):
-        print 'Wrong region. Available regions: eu, tw, us, kr, cn'
+        print ('Wrong region. Available regions: eu, tw, us, kr, cn')
     else:
         if customcdnurl != None:
-            cdnfile = urllib2.urlopen(customcdnurl)
+            cdnfile = urllib.request.urlopen(customcdnurl)
         else:
-            cdnfile = urllib2.urlopen('http://us.patch.battle.net:1119/wow/cdns')
+            cdnfile = urllib.request.urlopen('http://us.patch.battle.net:1119/wow/cdns')
         cdnfilecontent = cdnfile.read()
 
         if customconfigurl != None:
-            versionfile = urllib2.urlopen(customconfigurl)
+            versionfile = urllib.request.urlopen(customconfigurl)
         else:
-            versionfile = urllib2.urlopen('http://us.patch.battle.net:1119/wow/versions')
+            versionfile = urllib.request.urlopen('http://us.patch.battle.net:1119/wow/versions')
         versionfilecontent = versionfile.read()
 
         goodcdnpart = ''
@@ -842,16 +842,16 @@ def getEncodingAndRootFromServer(region, customcdnurl=None, customconfigurl=None
             if fixedregion + '|' in stringpart:
                 goodversionpart = stringpart
                 break
-        print goodversionpart
+        print (goodversionpart)
 
         fullhash = goodversionpart.split('|')[1]
         shorthashone = fullhash[:2]
         shorthashtwo = fullhash[2:4]
 
         buildfullurl = 'http://' + getfirsturlpart + '/' + getsecondurlpart + '/config/' + shorthashone + '/' + shorthashtwo + '/' + fullhash
-        configfile = urllib2.urlopen(buildfullurl)
+        configfile = urllib.request.urlopen(buildfullurl)
         readconfigfile = configfile.read()
-        print readconfigfile
+        print (readconfigfile)
 
         splitconfig = readconfigfile.split('\n')
 
@@ -864,8 +864,8 @@ def getEncodingAndRootFromServer(region, customcdnurl=None, customconfigurl=None
         roothash = rootline.split(' ')[2][1:]
         encodinghash = encodingline.split(' ')[3][1:]
 
-        print roothash
-        print encodinghash
+        print (roothash)
+        print (encodinghash)
         return roothash, encodinghash
 
 
@@ -903,8 +903,8 @@ def getEncodingAndRootFromLocalFiles(mainwowfolder):
     roothash = rootline.split(' ')[2]
     encodinghash = encodingline.split(' ')[3]
 
-    print 'Root Hash: %s' %(roothash)
-    print 'Encoding Hash: %s' %(encodinghash)
+    print ('Root Hash: %s' %(roothash))
+    print ('Encoding Hash: %s' %(encodinghash))
     return roothash, encodinghash
 
 
@@ -922,12 +922,12 @@ def parseCDNConfig(mainwowfolder, fixedregion='us', customcdnurl=None):
 
 
     if (fixedregion != 'eu') and (fixedregion != 'tw') and (fixedregion != 'us') and (fixedregion != 'kr') and (fixedregion != 'cn'):
-        print 'Wrong region. Available regions: eu, tw, us, kr, cn'
+        print ('Wrong region. Available regions: eu, tw, us, kr, cn')
     else:
         if customcdnurl != None:
-            cdnfile = urllib2.urlopen(customcdnurl)
+            cdnfile = urllib.request.urlopen(customcdnurl)
         else:
-            cdnfile = urllib2.urlopen('http://us.patch.battle.net:1119/wow/cdns')
+            cdnfile = urllib.request.urlopen('http://us.patch.battle.net:1119/wow/cdns')
         cdnfilecontent = cdnfile.read()
 
     goodcdnpart = ''
@@ -970,7 +970,7 @@ def parseCDNConfig(mainwowfolder, fixedregion='us', customcdnurl=None):
 
     archiveindexesarray = archivecdns.split(' ')[2:]
     #print archiveindexesarray
-    print 'Parsing %i indicies files, it may take a while...' %(len(archiveindexesarray))
+    print ('Parsing %i indicies files, it may take a while...' %(len(archiveindexesarray)))
 
     localindiciesfolder = mainwowfolder + 'Data\\indices'
     localindiciesarray = os.listdir(localindiciesfolder)
@@ -985,7 +985,7 @@ def parseCDNConfig(mainwowfolder, fixedregion='us', customcdnurl=None):
         if fullindexname in localindiciesarray:
             openindex = open(localindiciesfolder + '\\' + fullindexname, 'rb')
         elif fullindexname not in localindiciesarray:
-            print '%s was not found in local indicies folder. Trying to download it from CDN.' %(fullindexname)
+            print ('%s was not found in local indicies folder. Trying to download it from CDN.' %(fullindexname))
             cdnurlpath = 'http://' + getfirsturlpart + '/' + getsecondurlpart + '/data/' + fullindexname[:2] + '/' + fullindexname[2:4] + '/' + fullindexname
             downloadfile = urllib.URLopener()
             if not os.path.exists('indexcache'):
@@ -1033,12 +1033,12 @@ def getMapNames(wowfolderpath):
     global blizzhashfilekeyrootarray
     stringarray = []
     if len(blizzhashfilekeyrootarray) == 0:
-        print 'Root blizzhash array is empty, remaking it'
+        print ('Root blizzhash array is empty, remaking it')
         root, encoding = getEncodingAndRootFromLocalFiles(wowfolderpath)
         initializeNecessaryArrays(encoding, root, wowfolderpath, '0x202')
     mapdb2 = parseWoWFile('DBFilesClient\Map.db2', wowfolderpath)
     if mapdb2 == None:
-        print 'Something went wrong... try again'
+        print ('Something went wrong... try again')
     else:
         db2headersize = 0x54
         readdb2 = mapdb2
@@ -1068,8 +1068,8 @@ def getMapNames(wowfolderpath):
                 else:
                     stringkeeper += checkCurrentByte
                     offsetcounter += 1
-        print len(stringarray)
-        print stringarray
+        print (len(stringarray))
+        print (stringarray)
 
         existingstringsarray = []
         if len(stringarray) > 0:
@@ -1086,13 +1086,13 @@ def getMapNames(wowfolderpath):
                         continue
         removeduplicates = set(existingstringsarray)
         fixedstringarray = sorted(list(removeduplicates), key=str.lower)
-        print len(fixedstringarray)
-        print fixedstringarray
+        print (len(fixedstringarray))
+        print (fixedstringarray)
 
-        print 'Generating dictionary for string to check...'
+        print ('Generating dictionary for string to check...')
         generatedblizzhashesdictionary = {}
         for directory in fixedstringarray:
-            print 'Generating strings for %s directory' %(directory)
+            print ('Generating strings for %s directory' %(directory))
             fakearray = []
             fakearray.append('World\Maps\%s\%s.wdl' %(directory, directory))
             fakearray.append('World\Maps\%s\%s.wdt' % (directory, directory))
@@ -1112,10 +1112,10 @@ def getMapNames(wowfolderpath):
 
         blizzhasharrayset = set(blizzhashfilekeyrootarray)
         generatedblizzhashesdictionaryset = set(generatedblizzhashesdictionary)
-        print len(blizzhasharrayset)
-        print len(generatedblizzhashesdictionaryset)
+        print (len(blizzhasharrayset))
+        print (len(generatedblizzhashesdictionaryset))
         finalset = blizzhasharrayset & generatedblizzhashesdictionaryset
-        print len(finalset)
+        print (len(finalset))
 
         truestinglist = []
         maplistfile = open('maplistfile.txt', 'w')
@@ -1124,7 +1124,7 @@ def getMapNames(wowfolderpath):
         for filename in sorted(truestinglist, key=str.lower):
             maplistfile.write(filename + '\n')
         maplistfile.close()
-        print 'Done!'
+        print ('Done!')
 
 
 def getM2AndWMOUsingMaplistfile(mainwowfolder, remakemaplistfile=False, workernumber=1):
@@ -1132,7 +1132,7 @@ def getM2AndWMOUsingMaplistfile(mainwowfolder, remakemaplistfile=False, workernu
     mainstringarray = []
 
     def helperFunction(fileentry):
-        print 'Getting M2 and WMO string from %s' % (fileentry)
+        print ('Getting M2 and WMO string from %s' % (fileentry))
         readobj0 = parseWoWFile(fileentry, mainwowfolder)
         firstmddxstring = 0
         MDDXstart = 0
@@ -1209,7 +1209,7 @@ def getM2AndWMOUsingMaplistfile(mainwowfolder, remakemaplistfile=False, workernu
     mainstringarray = []
     currentdir = os.listdir(os.curdir)
     if remakemaplistfile == True or ('maplistfile.txt' not in currentdir):
-        print 'Maplistfile.txt not found or option to remake has been choosen. It may take few minutes...'
+        print ('Maplistfile.txt not found or option to remake has been choosen. It may take few minutes...')
         getMapNames(mainwowfolder)
     with open('maplistfile.txt', 'r') as openmaplist:
         openmaplistfile = openmaplist.read()
@@ -1226,18 +1226,18 @@ def getM2AndWMOUsingMaplistfile(mainwowfolder, remakemaplistfile=False, workernu
     pool.join()
 
     openm2andwmolistfile = open('m2andwmolistfile.txt', 'w')
-    print 'Lenght of array is %i, removing duplicates' % (len(mainstringarray))
+    print ('Lenght of array is %i, removing duplicates' % (len(mainstringarray)))
     mainstringarrayset = set(mainstringarray)
     sortedarray = sorted(list(mainstringarrayset), key=str.lower)
     for entry in sortedarray:
         openm2andwmolistfile.write(entry + '\n')
-    print 'm2andwmolistfile.txt generated successfully!'
+    print ('m2andwmolistfile.txt generated successfully!')
 
 def parseAllNecessaryMapFile(mainwowfolder, outputfolder, workernumber=4):
     global blizzhashfilekeyrootarray
 
     def innerHelper(stringinput):
-        print 'Parsing file %s' % (stringinput)
+        print ('Parsing file %s' % (stringinput))
         splitfile = stringinput.split('\\')
         filename = splitfile[-1]
         del splitfile[-1]
@@ -1253,10 +1253,10 @@ def parseAllNecessaryMapFile(mainwowfolder, outputfolder, workernumber=4):
     pool = ThreadPool(workernumber)
     thisdirectory = os.listdir(os.curdir)
     if 'maplistfile.txt' not in thisdirectory:
-        print 'maplistfile.txt not found in current directory, use getMapNames function to generate it'
+        print ('maplistfile.txt not found in current directory, use getMapNames function to generate it')
         return None
     elif 'm2andwmolistfile.txt' not in thisdirectory:
-        print 'm2andwmolistfile.txt not found in current directory, use getM2AndWMOUsingMaplistfile function to generate it (very long, around 3-4 hours) or provide your own list'
+        print ('m2andwmolistfile.txt not found in current directory, use getM2AndWMOUsingMaplistfile function to generate it (very long, around 3-4 hours) or provide your own list')
         return None
     else:
         readmaplistfilee = open('maplistfile.txt', 'r')
@@ -1315,7 +1315,7 @@ def compareMapsFolders():
 
     for fe in goodfilearray:
         if fe not in directoryfilearray:
-            print fe
+            print (fe)
 
 
 
@@ -1329,7 +1329,7 @@ def getDB2FileListFromWowClient(mainwowfolder, currentversion='7.3.5.26124', cur
         currentdb2offset = int(currentdb2offset, 16)
 
     if type(currentversion) != str:
-        print 'currentversion type is wrong, provide string'
+        print ('currentversion type is wrong, provide string')
         return None
 
     db2stringsarray = []
@@ -1352,7 +1352,7 @@ def getDB2FileListFromWowClient(mainwowfolder, currentversion='7.3.5.26124', cur
         if wowprocesshandle == 0:
             wowprocesshandle = setProcessHandle(wowpid, PROCESS_ALL_ACCESS)
         if wowprocesshandle == 0:
-            print 'Couldnt retrieve handle to active Wow process'
+            print ('Couldnt retrieve handle to active Wow process')
         else:
             #Get module base address from handle
             baseaddress = getBaseAddress(wowprocesshandle)
@@ -1362,10 +1362,10 @@ def getDB2FileListFromWowClient(mainwowfolder, currentversion='7.3.5.26124', cur
                 #Read version from client memory, check if its correct
                 if ReadProcessMemory(wowprocesshandle, baseaddress + wowversionoffset, versionbuffer, 32, byref(bytesRead)):
                     if versionbuffer.value != currentWowversion:
-                        print 'Wrong WoW version, current program can get DB2 string list only for version %s. Update offsets!' %(currentWowversion)
-                        print 'Current Version Buffer value is: %s (should be %s)' %(versionbuffer.value, currentWowversion)
+                        print ('Wrong WoW version, current program can get DB2 string list only for version %s. Update offsets!' %(currentWowversion))
+                        print ('Current Version Buffer value is: %s (should be %s)' %(versionbuffer.value, currentWowversion))
                     else:
-                        print 'Version check passed!'
+                        print ('Version check passed!')
                         addressbuffer = c_longlong()
                         db2stringbuffer = c_char_p('')
                         localoffset = 0
@@ -1379,10 +1379,10 @@ def getDB2FileListFromWowClient(mainwowfolder, currentversion='7.3.5.26124', cur
                             fakecounter += 1
                             if db2stringbuffer.value == 'ZoneStory':
                                 pass
-                        print 'Generated DB2StringArray with %i elements' %(len(db2stringsarray))
-                        print 'Checking if all entries exist in root!'
+                        print ('Generated DB2StringArray with %i elements' %(len(db2stringsarray)))
+                        print ('Checking if all entries exist in root!')
                         if len(blizzhashfilekeyrootarray) == 0:
-                            print 'Blizzhash root keys array is empty, remaking it using local files.'
+                            print ('Blizzhash root keys array is empty, remaking it using local files.')
                             root, encoding = getEncodingAndRootFromLocalFiles(mainwowfolder)
                             initializeNecessaryArrays(encoding, root, mainwowfolder, '0x202')
                         db2blizzhashdictionary = {}
@@ -1393,7 +1393,7 @@ def getDB2FileListFromWowClient(mainwowfolder, currentversion='7.3.5.26124', cur
                         rootblizzhashset = set(blizzhashfilekeyrootarray)
                         db2blizzhashset = set(db2blizzhashdictionary)
                         compareblizzhashes = rootblizzhashset & db2blizzhashset
-                        print 'Found %i db2 string in root!' %(len(compareblizzhashes))
+                        print ('Found %i db2 string in root!' %(len(compareblizzhashes)))
 
                         existingdb2paths = []
                         for blizzhash in list(compareblizzhashes):
@@ -1403,7 +1403,7 @@ def getDB2FileListFromWowClient(mainwowfolder, currentversion='7.3.5.26124', cur
                         for entry in sorted(existingdb2paths, key=str.lower):
                             opendb2listfile.write(entry + '\n')
                         opendb2listfile.close()
-                        print 'DB2 Listfile Created!'
+                        print ('DB2 Listfile Created!')
                         return sorted(existingdb2paths, key=str.lower)
 
 
@@ -1419,7 +1419,7 @@ def getAllStringFromDB2Files(db2listfilepath, mainwowfolder):
             del splitentries[index]
     alldb2filesdictionary = {}
     for db2string in splitentries:
-        print db2string
+        print (db2string)
         stringarray = []
         readdb2 = parseWoWFile(db2string, mainwowfolder)
         db2headersize = 0x54
@@ -1449,10 +1449,10 @@ def getAllStringFromDB2Files(db2listfilepath, mainwowfolder):
                 else:
                     stringkeeper += checkCurrentByte
                     offsetcounter += 1
-        print '%s file array has %i elements' %(db2string, len(stringarray))
+        print ('%s file array has %i elements' %(db2string, len(stringarray)))
         alldb2filesdictionary[db2string] = stringarray
 
-    print 'Initialization completed.'
+    print ('Initialization completed.')
     openstringfile = open('db2stringlist', 'w')
     for db2stringvalue, thisstringarray in sorted(alldb2filesdictionary.items()):
         openstringfile.write(db2stringvalue + '\n' + '\n')

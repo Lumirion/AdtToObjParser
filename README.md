@@ -7,11 +7,12 @@ Generated Obj files only contain vertices and faces (additionally water vertices
 
 ## Getting Started
 
-Project is written in Python 2.7 x64 and should be used under Windows.
+This project was originaly written in Python 2.7 x64 but in this repo it is being updated to Python 3.x. 
+It should be used under Windows as it relies on pywin32. (piwin32 is x64 if installd for x64 Python)
 Almost all required modules are inclued in basic Python, if something is missing use pip to install it. Modules that you may need to install:
 
 ```
-jenkins-python
+python-jenkins
 
 multiprocess
 
@@ -19,6 +20,22 @@ psutil
 
 requests
 ```
+For example, using Python version 3.7, I did:
+```
+py -3.7 -m pip install python-jenkins
+py -3.7 -m pip install multiprocess
+py -3.7 -m pip install psutil
+py -3.7 -m pip install requests
+```
+Open CMD as Admin by rightclicking on the CMD or Command Prompt button in satrt menu.
+In the pop up click "run as administrator". 
+Then, at the admin mode command prompt use the following commands, substituting your own username for YourUser:
+```
+py -3.7 -m pip install pywin32
+py -3.7 C:/Users/YourUser/AppData/Local/Programs/Python/Python37/Scripts/pywin32_postinstall.py -install
+```
+If you use a diffrent Python version remember to chane the Pyhton version folder to match.
+For instance, in Python 3.8 the Scripts folder is in Python38 instead of Python37.
 
 ### Installing
 
