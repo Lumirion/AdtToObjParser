@@ -2,6 +2,7 @@ import re
 import struct
 import math
 import os
+from pathlib import Path
 import time
 
 global vertexesarray
@@ -1478,38 +1479,38 @@ def removePortalsInWMO(adtfilename, folderpath, filepath, posy, posz, posx, rota
 def parseallADTindirectory(mainfolderpath, outputfolderpath, startfolderindex=0, endfolderindex=9999,overwritefiles=True, highlevelofdetails=False):
     global MCNKindexes
     global vertexesarray
-    directorylist = os.listdir(mainfolderpath)
-    overwritefilelist = os.listdir(outputfolderpath)
-    if 'World' in directorylist:
-        newlist = os.listdir(mainfolderpath + 'World\\')
-        if 'Maps' in newlist:
-            mainmapdirectorypath = mainfolderpath + 'World\\' + 'Maps\\'
-            openmainmapdirectory = os.listdir(mainmapdirectorypath)
-            for folderindex, mapfolder in enumerate(openmainmapdirectory):
-                if startfolderindex <= folderindex and endfolderindex > folderindex:
-                    currentmapfolder = os.listdir(mainmapdirectorypath + mapfolder)
-                    for file in currentmapfolder:
-                        fileexists = False
-                        if overwritefiles == False:
-                            for filetocheck in overwritefilelist:
-                                if filetocheck.split('.')[0] in file:
-                                    if '.adt' in file and '_obj0' not in file and '_obj1' not in file and '_tex0' not in file and '_lod' not in file:
-                                        print '%s already exists in output folder, skipping parsing of %s' %(filetocheck, file)
-                                    fileexists = True
-                                    continue
-                        if '.adt' in file and '_obj0' not in file and '_obj1' not in file and '_tex0' not in file and '_lod' not in file and fileexists==False:
-                            adtfilestringinput = mainmapdirectorypath + mapfolder + '\\' + file
-                            print adtfilestringinput
-                            vertexesarray = []
-                            MCNKindexes = []
-                            parseTerrain(adtfilestringinput, outputfolderpath)
-                            parseWater(adtfilestringinput, outputfolderpath)
-                            #parseHoles(adtfilestringinput, outputfolderpath)
-                            parseAllM2(adtfilestringinput, mainfolderpath, outputfolderpath)
-                            if highlevelofdetails == False:
-                                parseAllWMO(adtfilestringinput, mainfolderpath, outputfolderpath, False)
-                            else:
-                                parseAllWMO(adtfilestringinput, mainfolderpath, outputfolderpath, True)
+    ADTpaths = [] # array of strings to hold found adt file path and name
+	# First, get a list of all file path names from the input folder. 
+    for root,Directories,Files in os.walk(mainfolderpath):
+        for file in Files:
+		    # Store only base ADTs. The _obj0 _obj1 _tex0 and _lod addon files should not be included as they are parsed as subcomponents of their parent adt.
+            if file.endswith('.adt') and '_obj0' not in file and '_obj1' not in file and '_tex0' not in file and '_lod' not in file:
+                PathName = os.path.join(root, file)
+                ADTpaths.append(PathName)
+                #print (PathName)
+    # Now we want to iterate over ADTfiles. 
+    for index, FilePath in enumerate(ADTpaths):
+        # If we are not overwriting output files, generate an output file name for our input file and see if it exists in the output folder 
+        if overwritefiles == False:
+            # Extract file name from path and change the extension to .obj
+            OBJFileName = ' '.join(outputfolderpath, Path(FilePath).stem, 'obj')
+			# See if the OBJ version of the current ADT exists
+            if os.path.isfile(OBJFileName):
+                print ('%s already exists in output folder, skipping parsing of %s' %(OBJFileName, FilePath))
+                continue # We already have an OBJ for this ADT file. Skip to the next ADT in the for loop.
+		# Either we are overwriting output files or we don't have one for this ADT.
+        # Lets parse an ADT		
+        print (FilePath)
+        vertexesarray = []
+        MCNKindexes = []
+        parseTerrain(FilePath, outputfolderpath)
+        parseWater(FilePath, outputfolderpath)
+        #parseHoles(FilePath, outputfolderpath)
+        parseAllM2(FilePath, mainfolderpath, outputfolderpath)
+        if highlevelofdetails == False:
+            parseAllWMO(FilePath, mainfolderpath, outputfolderpath, False)
+        else:
+            parseAllWMO(FilePath, mainfolderpath, outputfolderpath, True)
 
 global containlowresholes
 containlowresholes = []
